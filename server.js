@@ -309,8 +309,12 @@ app.post('/api/update-profile', authenticateToken, (req, res) => {
   }
 });
 
-// Запуск сервера
-app.listen(PORT, () => {
-  console.log(`🚀 HabitFlow сервер запущен на http://localhost:${PORT}`);
-  console.log(`📁 Данные хранятся в: ${DATA_DIR}`);
-});
+// Запуск сервера (только локально, не в Vercel)
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`🚀 HabitFlow сервер запущен на http://localhost:${PORT}`);
+    console.log(`📁 Данные хранятся в: ${DATA_DIR}`);
+  });
+}
+
+module.exports = app;
