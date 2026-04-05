@@ -321,4 +321,6 @@ if (process.env.VERCEL !== '1') {
   });
 }
 
-module.exports = app;
+// Для Vercel serverless
+const serverless = require('serverless-http');
+module.exports.handler = serverless(app);
