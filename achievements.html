@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Достижения - Habit Tracker</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    // Применяем тему сразу до загрузки страницы
+    (function() {
+      const savedTheme = localStorage.getItem('habitflow_theme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      }
+    })();
+  </script>
+</head>
+<body>
+  <!-- Навигация -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <span>🚀</span> Habit Tracker
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">🏠 Главная</a></li>
+        <li><a href="dashboard.html">📊 Панель</a></li>
+        <li><a href="habits.html">📝 Привычки</a></li>
+        <li><a href="stats.html">📈 Статистика</a></li>
+        <li><a href="achievements.html" class="active">🏆 Достижения</a></li>
+        <li><a href="profile.html">👤 Профиль</a></li>
+      </ul>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span id="navUserName" style="color: var(--text-secondary); font-size: 0.9rem; display: none;"></span>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
+        <button id="logoutBtn" onclick="logout()" style="background: var(--danger); color: white; border: none; padding: 0.5rem 1rem; border-radius: 25px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease; display: none;" title="Выйти">🚪</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Основной контент -->
+  <main class="container">
+    <div class="page-header">
+      <h1>🏆 Достижения</h1>
+      <p>Открывайте новые достижения и получайте награды</p>
+    </div>
+
+    <!-- Прогресс достижений -->
+    <div class="card" style="margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2 style="font-size: 1.3rem;">📊 Общий прогресс</h2>
+        <span id="achievementProgress" style="font-weight: 600; color: var(--accent-primary);">0/0</span>
+      </div>
+      <div class="progress-container" style="height: 20px;">
+        <div class="progress-bar" id="achievementBar" style="width: 0%"></div>
+      </div>
+      <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+        Откройте все достижения, чтобы стать настоящим мастером привычек!
+      </p>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="card" style="margin-bottom: 2rem;">
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <button class="btn btn-primary" onclick="filterAchievements('all')">Все</button>
+        <button class="btn btn-success" onclick="filterAchievements('unlocked')">🎉 Открытые</button>
+        <button class="btn btn-secondary" onclick="filterAchievements('locked')">🔒 Закрытые</button>
+      </div>
+    </div>
+
+    <!-- Список достижений -->
+    <div class="achievement-grid" id="achievementsList">
+      <!-- Достижения будут загружены здесь -->
+    </div>
+
+    <!-- Секция с советами -->
+    <div class="card-grid" style="margin-top: 2rem;">
+      <div class="card fade-in">
+        <h3 style="margin-bottom: 0.5rem;">🌱 Первый шаг</h3>
+        <p style="color: var(--text-secondary);">
+          Выполните свою первую привычку, чтобы получить достижение "Первый шаг". 
+          Это начало вашего пути!
+        </p>
+      </div>
+      
+      <div class="card fade-in delay-1">
+        <h3 style="margin-bottom: 0.5rem;">🔥 Поддерживайте серию</h3>
+        <p style="color: var(--text-secondary);">
+          Выполняйте привычки каждый день без перерывов, чтобы получить 
+          достижения за стрики!
+        </p>
+      </div>
+      
+      <div class="card fade-in delay-2">
+        <h3 style="margin-bottom: 0.5rem;">👑 Станьте легендой</h3>
+        <p style="color: var(--text-secondary);">
+          Достигните 10 уровня и получите самое престижное достижение 
+          "Легенда"!
+        </p>
+      </div>
+    </div>
+
+    <!-- Статистика достижений -->
+    <div class="card" style="margin-top: 2rem;">
+      <h3 style="margin-bottom: 1.5rem;">📈 Статистика достижений</h3>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+        <div style="text-align: center; padding: 1.5rem; background: var(--bg-secondary); border-radius: 15px;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏆</div>
+          <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-primary);" id="unlockedCount">0</div>
+          <div style="color: var(--text-secondary); font-size: 0.9rem;">Открыто</div>
+        </div>
+        
+        <div style="text-align: center; padding: 1.5rem; background: var(--bg-secondary); border-radius: 15px;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔒</div>
+          <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-muted);" id="lockedCount">0</div>
+          <div style="color: var(--text-secondary); font-size: 0.9rem;">Закрыто</div>
+        </div>
+        
+        <div style="text-align: center; padding: 1.5rem; background: var(--bg-secondary); border-radius: 15px;">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📋</div>
+          <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);" id="totalCount">0</div>
+          <div style="color: var(--text-secondary); font-size: 0.9rem;">Всего</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Футер -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>🚀 Habit Tracker</h4>
+        <p>Ваш персональный трекер полезных привычек с геймификацией</p>
+        <div class="footer-social">
+          <a href="#" title="Telegram">✈️</a>
+          <a href="#" title="VK">📘</a>
+          <a href="#" title="Email">📧</a>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <h4>Навигация</h4>
+        <a href="index.html">🏠 Главная</a>
+        <a href="dashboard.html">📊 Панель</a>
+        <a href="habits.html">📝 Привычки</a>
+        <a href="stats.html">📈 Статистика</a>
+      </div>
+
+      <div class="footer-section">
+        <h4>Разделы</h4>
+        <a href="achievements.html">🏆 Достижения</a>
+        <a href="profile.html">👤 Профиль</a>
+        <a href="#" onclick="exportData()">💾 Экспорт</a>
+        <a href="#" onclick="alert('Функция в разработке')">❓ Помощь</a>
+      </div>
+
+      <div class="footer-section">
+        <h4>Контакты</h4>
+        <p>support@habittracker.ru</p>
+        <p>Владимир, Россия</p>
+        <p>© 2026 Все права защищены</p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026 Habit Tracker. Создано для продуктивной жизни 🚀</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    let currentFilter = 'all';
+    
+    // Переопределение функции обновления достижений
+    const originalUpdateAchievements = updateAchievements;
+    updateAchievements = function() {
+      renderAchievements(currentFilter);
+      updateAchievementStats();
+    };
+    
+    function renderAchievements(filter = 'all') {
+      const container = document.getElementById('achievementsList');
+      
+      let filteredAchievements = achievements;
+      
+      if (filter === 'unlocked') {
+        filteredAchievements = achievements.filter(a => 
+          appState.unlockedAchievements.includes(a.id)
+        );
+      } else if (filter === 'locked') {
+        filteredAchievements = achievements.filter(a => 
+          !appState.unlockedAchievements.includes(a.id)
+        );
+      }
+      
+      if (filteredAchievements.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">🔒</div>
+            <h3>Пока нет достижений</h3>
+            <p style="color: var(--text-secondary);">Продолжайте выполнять привычки, чтобы открыть достижения!</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = filteredAchievements.map(achievement => {
+        const isUnlocked = appState.unlockedAchievements.includes(achievement.id);
+        
+        return `
+          <div class="achievement-card ${isUnlocked ? 'unlocked' : 'locked'} fade-in">
+            <div class="achievement-icon">${achievement.icon}</div>
+            <div class="achievement-name">${achievement.name}</div>
+            <div class="achievement-desc">${achievement.description}</div>
+            ${isUnlocked ? `
+              <div style="margin-top: 0.75rem; font-size: 0.75rem; color: var(--success); font-weight: 600;">
+                ✓ Открыто
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function filterAchievements(filter) {
+      currentFilter = filter;
+      renderAchievements(filter);
+      
+      // Обновление кнопок
+      document.querySelectorAll('.card button').forEach(btn => {
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-secondary');
+      });
+      
+      event.target.classList.remove('btn-secondary');
+      event.target.classList.add('btn-primary');
+    }
+    
+    function updateAchievementStats() {
+      const unlocked = appState.unlockedAchievements.length;
+      const total = achievements.length;
+      const locked = total - unlocked;
+      const percentage = Math.round((unlocked / total) * 100);
+      
+      document.getElementById('unlockedCount').textContent = unlocked;
+      document.getElementById('lockedCount').textContent = locked;
+      document.getElementById('totalCount').textContent = total;
+      document.getElementById('achievementProgress').textContent = `${unlocked}/${total}`;
+      document.getElementById('achievementBar').style.width = `${percentage}%`;
+    }
+    
+    // Инициализация при загрузке
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        renderAchievements('all');
+        updateAchievementStats();
+      }, 100);
+    });
+
+    // Проверка авторизации
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentUser = getCurrentUser();
+      if (!currentUser) {
+        window.location.href = 'auth.html';
+        return;
+      }
+    });
+  </script>
+</body>
+</html>

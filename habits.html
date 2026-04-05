@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Привычки - Habit Tracker</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    // Применяем тему сразу до загрузки страницы
+    (function() {
+      const savedTheme = localStorage.getItem('habitflow_theme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      }
+    })();
+  </script>
+</head>
+<body>
+  <!-- Навигация -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <span>🚀</span> Habit Tracker
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">🏠 Главная</a></li>
+        <li><a href="dashboard.html">📊 Панель</a></li>
+        <li><a href="habits.html" class="active">📝 Привычки</a></li>
+        <li><a href="stats.html">📈 Статистика</a></li>
+        <li><a href="achievements.html">🏆 Достижения</a></li>
+        <li><a href="profile.html">👤 Профиль</a></li>
+      </ul>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span id="navUserName" style="color: var(--text-secondary); font-size: 0.9rem; display: none;"></span>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
+        <button id="logoutBtn" onclick="logout()" style="background: var(--danger); color: white; border: none; padding: 0.5rem 1rem; border-radius: 25px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease; display: none;" title="Выйти">🚪</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Основной контент -->
+  <main class="container">
+    <div class="page-header">
+      <h1>📝 Мои привычки</h1>
+      <p>Управляйте своими ежедневными привычками</p>
+    </div>
+
+    <!-- Фильтры и действия -->
+    <div class="card" style="margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+          <button class="btn btn-primary" onclick="openModal('addHabitModal')">
+            ➕ Добавить привычку
+          </button>
+          <button class="btn btn-secondary" onclick="filterHabits('all')">Все</button>
+          <button class="btn btn-secondary" onclick="filterHabits('active')">Активные</button>
+          <button class="btn btn-secondary" onclick="filterHabits('completed')">Выполненные</button>
+        </div>
+        
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <span style="color: var(--text-secondary);">Сортировка:</span>
+          <select id="sortSelect" onchange="sortHabits()" style="padding: 0.5rem; border-radius: 10px; border: 2px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); cursor: pointer;">
+            <option value="default">По умолчанию</option>
+            <option value="name">По названию</option>
+            <option value="streak">По стрику</option>
+            <option value="progress">По прогрессу</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Список привычек -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.3rem;">📋 Все привычки</h2>
+        <span id="habitsCount" style="color: var(--text-secondary);">0 привычек</span>
+      </div>
+      
+      <div id="habitsList">
+        <!-- Привычки будут загружены здесь -->
+      </div>
+      
+      <div id="emptyState" style="text-align: center; padding: 3rem; display: none;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">📝</div>
+        <h3 style="margin-bottom: 0.5rem;">Пока нет привычек</h3>
+        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Добавьте первую привычку и начните свой путь к успеху!</p>
+        <button class="btn btn-primary" onclick="openModal('addHabitModal')">➕ Добавить привычку</button>
+      </div>
+    </div>
+
+    <!-- Советы -->
+    <div class="card-grid" style="margin-top: 2rem;">
+      <div class="card fade-in">
+        <h3 style="margin-bottom: 0.5rem;">💡 Совет дня</h3>
+        <p style="color: var(--text-secondary);">
+          Начните с маленьких привычек. Лучше делать по 5 минут каждый день, 
+          чем по часу раз в неделю.
+        </p>
+      </div>
+      
+      <div class="card fade-in delay-1">
+        <h3 style="margin-bottom: 0.5rem;">🎯 Рекомендация</h3>
+        <p style="color: var(--text-secondary);">
+          Привычка формируется в среднем за 66 дней. Не сдавайтесь, 
+          даже если пропустили один день!
+        </p>
+      </div>
+      
+      <div class="card fade-in delay-2">
+        <h3 style="margin-bottom: 0.5rem;">🔥 Мотивация</h3>
+        <p style="color: var(--text-secondary);">
+          Каждый день без пропуска — это победа. Поддерживайте стрик 
+          и смотрите на свой прогресс!
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Футер -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>🚀 Habit Tracker</h4>
+        <p>Ваш персональный трекер полезных привычек с геймификацией</p>
+        <div class="footer-social">
+          <a href="#" title="Telegram">✈️</a>
+          <a href="#" title="VK">📘</a>
+          <a href="#" title="Email">📧</a>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <h4>Навигация</h4>
+        <a href="index.html">🏠 Главная</a>
+        <a href="dashboard.html">📊 Панель</a>
+        <a href="habits.html">📝 Привычки</a>
+        <a href="stats.html">📈 Статистика</a>
+      </div>
+
+      <div class="footer-section">
+        <h4>Разделы</h4>
+        <a href="achievements.html">🏆 Достижения</a>
+        <a href="profile.html">👤 Профиль</a>
+        <a href="#" onclick="exportData()">💾 Экспорт</a>
+        <a href="#" onclick="alert('Функция в разработке')">❓ Помощь</a>
+      </div>
+
+      <div class="footer-section">
+        <h4>Контакты</h4>
+        <p>support@habittracker.ru</p>
+        <p>Владимир, Россия</p>
+        <p>© 2026 Все права защищены</p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026 Habit Tracker. Создано для продуктивной жизни 🚀</p>
+    </div>
+  </footer>
+
+  <!-- Модальное окно добавления привычки -->
+  <div class="modal-overlay" id="addHabitModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>➕ Новая привычка</h2>
+        <button class="modal-close" onclick="closeModal('addHabitModal')">×</button>
+      </div>
+      
+      <form onsubmit="submitHabitForm(event)">
+        <div class="form-group">
+          <label>Название привычки</label>
+          <input type="text" name="habitName" placeholder="Например: Пить воду" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Эмодзи</label>
+          <select name="habitEmoji" style="font-size: 1.2rem;">
+            <option value="💧">💧 Вода</option>
+            <option value="📚">📚 Книги</option>
+            <option value="🏃‍♂️">🏃‍♂️ Спорт</option>
+            <option value="🧘‍♀️">🧘‍♀️ Медитация</option>
+            <option value="💤">💤 Сон</option>
+            <option value="🥗">🥗 Питание</option>
+            <option value="🎯">🎯 Цель</option>
+            <option value="⭐">⭐ Звезда</option>
+            <option value="🔥">🔥 Огонь</option>
+            <option value="💪">💪 Сила</option>
+            <option value="🧠">🧠 Ум</option>
+            <option value="❤️">❤️ Здоровье</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Цель (сколько раз в день)</label>
+          <input type="number" name="habitTarget" value="1" min="1" max="100">
+        </div>
+        
+        <div class="form-group">
+          <label>Единица измерения</label>
+          <input type="text" name="habitUnit" value="раз" placeholder="раз, минут, стаканов...">
+        </div>
+        
+        <div class="form-group">
+          <label>Цвет</label>
+          <input type="color" name="habitColor" value="#667eea" style="height: 50px; cursor: pointer;">
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addHabitModal')">Отмена</button>
+          <button type="submit" class="btn btn-primary">Создать</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    // Фильтрация привычек
+    function filterHabits(filter) {
+      const habits = appState.habits;
+      let filtered = [];
+      
+      switch(filter) {
+        case 'active':
+          filtered = habits.filter(h => h.completedToday < h.target);
+          break;
+        case 'completed':
+          filtered = habits.filter(h => h.completedToday >= h.target);
+          break;
+        default:
+          filtered = habits;
+      }
+      
+      renderFilteredHabits(filtered);
+    }
+    
+    // Сортировка привычек
+    function sortHabits() {
+      const sortType = document.getElementById('sortSelect').value;
+      let sorted = [...appState.habits];
+      
+      switch(sortType) {
+        case 'name':
+          sorted.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+        case 'streak':
+          sorted.sort((a, b) => b.streak - a.streak);
+          break;
+        case 'progress':
+          sorted.sort((a, b) => (b.completedToday / b.target) - (a.completedToday / a.target));
+          break;
+      }
+      
+      appState.habits = sorted;
+      updateHabitsList();
+    }
+    
+    // Рендер отфильтрованных привычек
+    function renderFilteredHabits(habits) {
+      const habitsContainer = document.getElementById('habitsList');
+      const emptyState = document.getElementById('emptyState');
+      const habitsCount = document.getElementById('habitsCount');
+      
+      if (habits.length === 0) {
+        habitsContainer.style.display = 'none';
+        emptyState.style.display = 'block';
+        habitsCount.textContent = '0 привычек';
+        return;
+      }
+      
+      habitsContainer.style.display = 'block';
+      emptyState.style.display = 'none';
+      habitsCount.textContent = `${habits.length} привычек`;
+      
+      habitsContainer.innerHTML = habits.map(habit => {
+        const progress = (habit.completedToday / habit.target) * 100;
+        const isCompleted = habit.completedToday >= habit.target;
+        
+        return `
+          <div class="habit-item fade-in">
+            <div class="habit-checkbox ${isCompleted ? 'checked' : ''}" 
+                 onclick="toggleHabit(${habit.id})">
+              ${isCompleted ? '✓' : ''}
+            </div>
+            <div class="habit-info">
+              <div class="habit-name">${habit.emoji} ${habit.name}</div>
+              <div class="habit-streak">
+                <span class="fire">🔥</span> ${habit.streak} дн. | 
+                ${habit.completedToday}/${habit.target} ${habit.unit}
+              </div>
+              <div class="progress-container">
+                <div class="progress-bar" style="width: ${Math.min(progress, 100)}%; background: ${habit.color}"></div>
+              </div>
+            </div>
+            <div class="habit-actions">
+              ${!isCompleted ? `
+                <button class="btn btn-success" onclick="incrementHabit(${habit.id})">
+                  +1
+                </button>
+              ` : ''}
+              <button class="btn btn-danger" onclick="deleteHabit(${habit.id})">
+                🗑️
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    // Переопределение updateHabitsList для страницы привычек
+    const originalUpdateHabitsList = updateHabitsList;
+    updateHabitsList = function() {
+      renderFilteredHabits(appState.habits);
+    };
+
+    // Проверка авторизации
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentUser = getCurrentUser();
+      if (!currentUser) {
+        window.location.href = 'auth.html';
+        return;
+      }
+    });
+  </script>
+</body>
+</html>
