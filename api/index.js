@@ -1,3 +1,4 @@
+const serverless = require('serverless-http');
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
@@ -11,8 +12,8 @@ const JWT_SECRET = 'habitflow_secret_key_2026_change_in_production';
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
-// Пути к данным — в /tmp для Vercel, иначе в папке data
-const DATA_DIR = process.env.VERCEL ? '/tmp/data' : path.join(__dirname, '..', 'data');
+// Data directory
+const DATA_DIR = '/tmp/data';
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const USER_DATA_DIR = path.join(DATA_DIR, 'users_data');
 
@@ -23,20 +24,14 @@ function readUsers() {
   if (!fs.existsSync(USERS_FILE)) { fs.writeFileSync(USERS_FILE, '[]', 'utf-8'); return []; }
   return JSON.parse(fs.readFileSync(USERS_FILE, 'utf-8'));
 }
-function writeUsers(users) {
-  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf-8');
-}
-function getUserDataFile(userId) {
-  return path.join(USER_DATA_DIR, `${userId}.json`);
-}
+function writeUsers(users) { fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf-8'); }
+function getUserDataFile(userId) { return path.join(USER_DATA_DIR, `${userId}.json`); }
 function readUserData(userId) {
   const file = getUserDataFile(userId);
   if (!fs.existsSync(file)) return null;
   return JSON.parse(fs.readFileSync(file, 'utf-8'));
 }
-function writeUserData(userId, data) {
-  fs.writeFileSync(getUserDataFile(userId), JSON.stringify(data, null, 2), 'utf-8');
-}
+function writeUserData(userId, data) { fs.writeFileSync(getUserDataFile(userId), JSON.stringify(data, null, 2), 'utf-8'); }
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -49,7 +44,6 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// API routes
 app.post('/api/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -60,12 +54,11 @@ app.post('/api/register', async (req, res) => {
     if (users.find(u => u.email === email)) return res.status(409).json({ error: 'Email уже зарегистрирован' });
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = { id: Date.now().toString(), name, email, password: hashedPassword, createdAt: new Date().toISOString() };
-    users.push(newUser);
-    writeUsers(users);
+    users.push(newUser); writeUsers(users);
     writeUserData(newUser.id, { habits: [], user: { name, email, level: 1, xp: 0, xpToNextLevel: 100, totalCompleted: 0, maxStreak: 0, earlyMorning: 0, lateNight: 0, perfectDays: 0, avatar: null }, unlockedAchievements: [], theme: 'light', weeklyData: [] });
     const token = jwt.sign({ id: newUser.id, email: newUser.email, name: newUser.name }, JWT_SECRET, { expiresIn: '30d' });
     res.json({ success: true, token, user: { id: newUser.id, name: newUser.name, email: newUser.email } });
-  } catch (err) { console.error('Ошибка регистрации:', err); res.status(500).json({ error: 'Ошибка сервера' }); }
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Ошибка сервера' }); }
 });
 
 app.post('/api/login', async (req, res) => {
@@ -75,11 +68,10 @@ app.post('/api/login', async (req, res) => {
     const users = readUsers();
     const user = users.find(u => u.email === email);
     if (!user) return res.status(401).json({ error: 'Неверный email или пароль' });
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) return res.status(401).json({ error: 'Неверный email или пароль' });
+    if (!await bcrypt.compare(password, user.password)) return res.status(401).json({ error: 'Неверный email или пароль' });
     const token = jwt.sign({ id: user.id, email: user.email, name: user.name }, JWT_SECRET, { expiresIn: '30d' });
     res.json({ success: true, token, user: { id: user.id, name: user.name, email: user.email } });
-  } catch (err) { console.error('Ошибка входа:', err); res.status(500).json({ error: 'Ошибка сервера' }); }
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Ошибка сервера' }); }
 });
 
 app.get('/api/user-data', authenticateToken, (req, res) => {
@@ -87,7 +79,7 @@ app.get('/api/user-data', authenticateToken, (req, res) => {
     const userData = readUserData(req.user.id);
     if (!userData) return res.status(404).json({ error: 'Данные не найдены' });
     res.json({ success: true, data: userData });
-  } catch (err) { console.error('Ошибка чтения:', err); res.status(500).json({ error: 'Ошибка сервера' }); }
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Ошибка сервера' }); }
 });
 
 app.post('/api/user-data', authenticateToken, (req, res) => {
@@ -95,7 +87,7 @@ app.post('/api/user-data', authenticateToken, (req, res) => {
     if (!req.body.data) return res.status(400).json({ error: 'Нет данных' });
     writeUserData(req.user.id, req.body.data);
     res.json({ success: true });
-  } catch (err) { console.error('Ошибка сохранения:', err); res.status(500).json({ error: 'Ошибка сервера' }); }
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Ошибка сервера' }); }
 });
 
 app.get('/api/me', authenticateToken, (req, res) => {
@@ -114,7 +106,7 @@ app.post('/api/change-password', authenticateToken, async (req, res) => {
     users[idx].password = await bcrypt.hash(newPassword, 10);
     writeUsers(users);
     res.json({ success: true, message: 'Пароль изменён' });
-  } catch (err) { console.error('Ошибка смены пароля:', err); res.status(500).json({ error: 'Ошибка сервера' }); }
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Ошибка сервера' }); }
 });
 
 app.post('/api/update-profile', authenticateToken, (req, res) => {
@@ -124,23 +116,10 @@ app.post('/api/update-profile', authenticateToken, (req, res) => {
     const users = readUsers();
     const idx = users.findIndex(u => u.id === req.user.id);
     if (idx === -1) return res.status(404).json({ error: 'Пользователь не найден' });
-    users[idx].name = name;
-    writeUsers(users);
+    users[idx].name = name; writeUsers(users);
     const token = jwt.sign({ id: req.user.id, email: req.user.email, name }, JWT_SECRET, { expiresIn: '30d' });
     res.json({ success: true, token, name });
-  } catch (err) { console.error('Ошибка профиля:', err); res.status(500).json({ error: 'Ошибка сервера' }); }
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Ошибка сервера' }); }
 });
 
-// Static file serving — обслуживаем фронтенд
-const ROOT = process.env.VERCEL ? path.join(__dirname, '..') : __dirname;
-app.use(express.static(ROOT));
-
-// SPA fallback — все несуществующие пути отдают index.html
-app.get('*', (req, res) => {
-  res.sendFile(path.join(ROOT, 'index.html'));
-});
-
-// Экспорт для Vercel serverless
-module.exports = (req, res) => {
-  app(req, res);
-};
+module.exports.handler = serverless(app);
