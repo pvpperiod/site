@@ -2,10 +2,10 @@
   "name": "habitflow-backend",
   "version": "1.0.0",
   "description": "Habit Tracker Backend Server",
-  "main": "server.js",
+  "main": "server-local.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node server-local.js",
+    "dev": "node server-local.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

@@ -1,0 +1,4 @@
+# Исключить локальный сервер из Vercel
+server-local.js
+.git/
+node_modules/
