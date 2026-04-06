@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Habit Tracker - Трекер полезных привычек</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    // Применяем тему сразу до загрузки страницы
+    (function() {
+      const savedTheme = localStorage.getItem('habitflow_theme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      }
+    })();
+  </script>
+</head>
+<body>
+  <!-- Навигация -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <span>🚀</span> Habit Tracker
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">🏠 Главная</a></li>
+        <li><a href="dashboard.html">📊 Панель</a></li>
+        <li><a href="habits.html">📝 Привычки</a></li>
+        <li><a href="stats.html">📈 Статистика</a></li>
+        <li><a href="achievements.html">🏆 Достижения</a></li>
+        <li><a href="profile.html">👤 Профиль</a></li>
+      </ul>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span id="navUserName" style="color: var(--text-secondary); font-size: 0.9rem; display: none;"></span>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
+        <button id="logoutBtn" onclick="logout()" style="background: var(--danger); color: white; border: none; padding: 0.5rem 1rem; border-radius: 25px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease; display: none;" title="Выйти">🚪</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Основной контент -->
+  <main class="container">
+    <!-- Hero секция -->
+    <section class="hero fade-in">
+      <div class="hero-content">
+        <div class="hero-badge">🎯 Трекер привычек №1 в 2026</div>
+        <h1>Создавайте привычки,<br>которые <span class="gradient-text">меняют жизнь</span></h1>
+        <p class="hero-description">Ваш персональный трекер с геймификацией, достижениями и умной аналитикой. Начните путь к лучшей версии себя уже сегодня!</p>
+        <div class="hero-buttons">
+          <a href="dashboard.html" class="hero-btn" id="heroBtn">Начать бесплатно →</a>
+          <a href="#how-it-works" class="hero-btn hero-btn-secondary">Как это работает?</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat-item">
+            <span class="hero-stat-value">10,000+</span>
+            <span class="hero-stat-label">пользователей</span>
+          </div>
+          <div class="hero-stat-item">
+            <span class="hero-stat-value">500,000+</span>
+            <span class="hero-stat-label">выполненных привычек</span>
+          </div>
+          <div class="hero-stat-item">
+            <span class="hero-stat-value">4.9★</span>
+            <span class="hero-stat-label">рейтинг</span>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="floating-card card-1">
+          <span class="emoji">💧</span>
+          <span class="text">Пить воду</span>
+          <span class="progress">8/8 ✓</span>
+        </div>
+        <div class="floating-card card-2">
+          <span class="emoji">📚</span>
+          <span class="text">Читать</span>
+          <span class="progress">30/30 ✓</span>
+        </div>
+        <div class="floating-card card-3">
+          <span class="emoji">🔥</span>
+          <span class="text">Стрик: 15 дней</span>
+        </div>
+        <div class="floating-card card-4">
+          <span class="emoji">🏆</span>
+          <span class="text">Новое достижение!</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Блок «Для кого» -->
+    <section class="card" style="margin-top: 3rem; padding: 2rem;">
+      <h2 style="text-align: center; margin-bottom: 0.5rem; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+        Кому подойдёт Habit Tracker?
+      </h2>
+      <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">Наше приложение поможет именно вам</p>
+      <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+        <div class="feature-card card fade-in" style="background: rgba(102, 126, 234, 0.1);">
+          <div class="feature-icon" style="font-size: 2.5rem;">👨‍💻</div>
+          <h3>Фрилансерам</h3>
+          <p>Тем, кто работает из дома и хочет структурировать свой день</p>
+        </div>
+        <div class="feature-card card fade-in" style="background: rgba(159, 122, 234, 0.1);">
+          <div class="feature-icon" style="font-size: 2.5rem;">👨‍💼</div>
+          <h3>Предпринимателям</h3>
+          <p>Занятым людям, которым важно поддерживать баланс работы и жизни</p>
+        </div>
+        <div class="feature-card card fade-in" style="background: rgba(72, 187, 120, 0.1);">
+          <div class="feature-icon" style="font-size: 2.5rem;">👩‍🎓</div>
+          <h3>Студентам</h3>
+          <p>Тем, кто хочет выработать дисциплину и успевать всё</p>
+        </div>
+        <div class="feature-card card fade-in" style="background: rgba(237, 137, 54, 0.1);">
+          <div class="feature-icon" style="font-size: 2.5rem;">🏃</div>
+          <h3>Спортсменам</h3>
+          <p>Для отслеживания тренировок и восстановления</p>
+        </div>
+        <div class="feature-card card fade-in" style="background: rgba(102, 126, 234, 0.1);">
+          <div class="feature-icon" style="font-size: 2.5rem;">🧘</div>
+          <h3>За здоровьем</h3>
+          <p>Тем, кто следит за ментальным и физическим здоровьем</p>
+        </div>
+        <div class="feature-card card fade-in" style="background: rgba(245, 101, 101, 0.1);">
+          <div class="feature-icon" style="font-size: 2.5rem;">🎯</div>
+          <h3>Мечтателям</h3>
+          <p>Всем, кто хочет превратить мечты в ежедневные действия</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Преимущества -->
+    <section class="features">
+      <div class="feature-card card fade-in delay-1">
+        <div class="feature-icon">🎮</div>
+        <h3>Геймификация</h3>
+        <p>Получайте XP, повышайте уровень и открывайте достижения</p>
+      </div>
+      
+      <div class="feature-card card fade-in delay-2">
+        <div class="feature-icon">🔥</div>
+        <h3>Стрики</h3>
+        <p>Поддерживайте серию дней и не прерывайте цепочку успеха</p>
+      </div>
+      
+      <div class="feature-card card fade-in delay-3">
+        <div class="feature-icon">📊</div>
+        <h3>Статистика</h3>
+        <p>Отслеживайте прогресс с подробными графиками и аналитикой</p>
+      </div>
+      
+      <div class="feature-card card fade-in delay-4">
+        <div class="feature-icon">🏆</div>
+        <h3>Достижения</h3>
+        <p>Получайте уникальные бейджи за свои успехи</p>
+      </div>
+      
+      <div class="feature-card card fade-in delay-1">
+        <div class="feature-icon">🌙</div>
+        <h3>Тёмная тема</h3>
+        <p>Комфортный режим использования в любое время суток</p>
+      </div>
+      
+      <div class="feature-card card fade-in delay-2">
+        <div class="feature-icon">📱</div>
+        <h3>Адаптивность</h3>
+        <p>Удобный интерфейс на любом устройстве</p>
+      </div>
+    </section>
+
+    <!-- Быстрый старт -->
+    <section class="card" style="margin-top: 3rem; text-align: center;">
+      <h2 style="margin-bottom: 1rem; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+        Предустановленные привычки
+      </h2>
+      <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+        Мы уже добавили для вас популярные полезные привычки
+      </p>
+      
+      <div class="card-grid">
+        <div class="card" style="text-align: center;">
+          <span style="font-size: 3rem;">💧</span>
+          <h4 style="margin: 0.5rem 0;">Пить воду</h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">8 стаканов в день</p>
+        </div>
+        
+        <div class="card" style="text-align: center;">
+          <span style="font-size: 3rem;">📚</span>
+          <h4 style="margin: 0.5rem 0;">Читать</h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">30 минут в день</p>
+        </div>
+        
+        <div class="card" style="text-align: center;">
+          <span style="font-size: 3rem;">🏃‍♂️</span>
+          <h4 style="margin: 0.5rem 0;">Зарядка</h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">Утренняя разминка</p>
+        </div>
+        
+        <div class="card" style="text-align: center;">
+          <span style="font-size: 3rem;">🧘‍♀️</span>
+          <h4 style="margin: 0.5rem 0;">Медитация</h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">10 минут спокойствия</p>
+        </div>
+        
+        <div class="card" style="text-align: center;">
+          <span style="font-size: 3rem;">💤</span>
+          <h4 style="margin: 0.5rem 0;">Сон</h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">8 часов здорового сна</p>
+        </div>
+        
+        <div class="card" style="text-align: center;">
+          <span style="font-size: 3rem;">🥗</span>
+          <h4 style="margin: 0.5rem 0;">Питание</h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">Здоровая еда</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Как это работает -->
+    <section class="card" style="margin-top: 3rem; padding: 2rem;">
+      <h2 style="text-align: center; margin-bottom: 2rem; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+        Как это работает?
+      </h2>
+      <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+        <div style="text-align: center; padding: 1rem;">
+          <div style="width: 60px; height: 60px; background: var(--accent-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; color: white; font-weight: bold;">1</div>
+          <h4 style="margin-bottom: 0.5rem;">Выберите привычки</h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">Из нашего списка или создайте свои собственные</p>
+        </div>
+        <div style="text-align: center; padding: 1rem;">
+          <div style="width: 60px; height: 60px; background: var(--accent-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; color: white; font-weight: bold;">2</div>
+          <h4 style="margin-bottom: 0.5rem;">Отмечайте прогресс</h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">Ежедневно выполняйте задания и получайте XP</p>
+        </div>
+        <div style="text-align: center; padding: 1rem;">
+          <div style="width: 60px; height: 60px; background: var(--accent-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; color: white; font-weight: bold;">3</div>
+          <h4 style="margin-bottom: 0.5rem;">Повышайте уровень</h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">Растите и открывайте новые достижения</p>
+        </div>
+        <div style="text-align: center; padding: 1rem;">
+          <div style="width: 60px; height: 60px; background: var(--accent-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; color: white; font-weight: bold;">4</div>
+          <h4 style="margin-bottom: 0.5rem;">Достигайте целей</h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem;">Следите за статистикой и улучшайте себя</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Статистика платформы -->
+    <section class="card" style="margin-top: 3rem; padding: 2rem; background: rgba(255, 255, 255, 0.1);">
+      <h2 style="text-align: center; margin-bottom: 1rem;">Результаты наших пользователей</h2>
+      <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">Реальные цифры тех, кто уже начал меняться к лучшему</p>
+      <div class="stats-overview">
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-value">9 из 10</div>
+          <div class="stat-label">пользователей достигают поставленных целей</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⭐</div>
+          <div class="stat-value">4.9/5</div>
+          <div class="stat-label">оценка приложения от пользователей</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-value">30 дней</div>
+          <div class="stat-label">средняя продолжительность серии</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📈</div>
+          <div class="stat-value">85%</div>
+          <div class="stat-label">пользователей продолжают использовать приложение через 3 месяца</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Блок сравнения До/После -->
+    <section class="card" style="margin-top: 3rem; padding: 2rem;" id="how-it-works">
+      <h2 style="text-align: center; margin-bottom: 2rem; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+        Что изменится в вашей жизни?
+      </h2>
+      <div class="comparison-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+        <div class="comparison-card before" style="background: rgba(211, 47, 47, 0.1); border: 2px solid var(--danger); border-radius: 20px; padding: 2rem;">
+          <h3 style="color: var(--danger); font-size: 1.5rem; margin-bottom: 1.5rem; text-align: center;">❌ Без системы</h3>
+          <ul style="list-style: none; padding: 0; space-y: 1rem;">
+            <li style="padding: 0.75rem 0; border-bottom: 1px solid rgba(211, 47, 47, 0.3);">📉 Постоянно откладываете важное</li>
+            <li style="padding: 0.75rem 0; border-bottom: 1px solid rgba(211, 47, 47, 0.3);">😰 Чувствуете вину за невыполненное</li>
+            <li style="padding: 0.75rem 0; border-bottom: 1px solid rgba(211, 47, 47, 0.3);">🎲 Действуете хаотично</li>
+            <li style="padding: 0.75rem 0; border-bottom: 1px solid rgba(211, 47, 47, 0.3);">📊 Не видите своего прогресса</li>
+            <li style="padding: 0.75rem 0;">😴 Быстро выгораете</li>
+          </ul>
+        </div>
+        <div class="comparison-card after" style="background: rgba(72, 187, 120, 0.1); border: 2px solid var(--success); border-radius: 20px; padding: 2rem;">
+          <h3 style="color: var(--success); font-size: 1.5rem; margin-bottom: 1.5rem; text-align: center;">✅ С Habit Tracker</h3>
+          <ul style="list-style: none; padding: 0;">
+            <li style="padding: 0.75rem 0; border-bottom: 1px solid rgba(72, 187, 120, 0.3);">✓ Чёткий план на каждый день</li>
+            <li style="padding: 0.75rem 0; border-bottom: 1px solid rgba(72, 187, 120, 0.3);">🎯 Видите прогресс в реальном времени</li>
+            <li style="padding: 0.75rem 0; border-bottom: 1px solid rgba(72, 187, 120, 0.3);">🔥 Мотивация от достижений и стриков</li>
+            <li style="padding: 0.75rem 0; border-bottom: 1px solid rgba(72, 187, 120, 0.3);">📈 Понимаете свою статистику</li>
+            <li style="padding: 0.75rem 0;">🚀 Получаете удовольствие от роста</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Калькулятор прогресса -->
+    <section class="card" style="margin-top: 3rem; padding: 2rem; background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);">
+      <h2 style="text-align: center; margin-bottom: 0.5rem; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+        Посчитайте свой потенциал
+      </h2>
+      <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">Узнайте, сколько привычек вы сможете выполнить за год</p>
+      
+      <div style="max-width: 600px; margin: 0 auto; background: rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 2rem;">
+        <div class="calculator-row" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+          <label style="flex: 1; min-width: 200px; font-weight: 600;">Привычек в день:</label>
+          <input type="range" id="habitsSlider" min="1" max="10" value="3" style="flex: 2; min-width: 200px;" oninput="updateCalculator()">
+          <span id="habitsValue" style="font-size: 1.5rem; font-weight: bold; color: var(--accent-primary); min-width: 60px; text-align: center;">3</span>
+        </div>
+        
+        <div class="calculator-row" style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+          <label style="flex: 1; min-width: 200px; font-weight: 600;">Дней в неделю:</label>
+          <input type="range" id="daysSlider" min="1" max="7" value="5" style="flex: 2; min-width: 200px;" oninput="updateCalculator()">
+          <span id="daysValue" style="font-size: 1.5rem; font-weight: bold; color: var(--accent-primary); min-width: 60px; text-align: center;">5</span>
+        </div>
+
+        <div class="calculator-result" style="background: rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 1.5rem; margin-top: 1.5rem;">
+          <div style="text-align: center;">
+            <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem;">За год вы выполните:</div>
+            <div style="font-size: 3rem; font-weight: bold; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+              <span id="yearlyTotal">780</span>
+            </div>
+            <div style="color: var(--text-secondary); margin-top: 0.5rem;">успешных действий!</div>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 1.5rem; color: var(--text-secondary); font-size: 0.9rem;">
+          💡 <span id="motivationText">Это 2-3 новые привычки в месяц!</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Отзывы -->
+    <section class="card" style="margin-top: 3rem; padding: 2rem;">
+      <h2 style="text-align: center; margin-bottom: 2rem; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+        Что говорят пользователи
+      </h2>
+      <div class="card-grid">
+        <div class="card" style="background: rgba(255, 255, 255, 0.1);">
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+            <div style="width: 50px; height: 50px; background: var(--accent-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👩</div>
+            <div>
+              <h4 style="margin: 0;">Анна К.</h4>
+              <p style="margin: 0; color: var(--text-secondary); font-size: 0.85rem;">Маркетолог</p>
+            </div>
+          </div>
+          <p style="color: var(--text-secondary); font-style: italic;">"Благодаря Habit Flow я наконец-то начала пить достаточно воды и читать каждый день. Это изменило мою жизнь!"</p>
+          <div style="margin-top: 1rem; color: var(--accent-gold);">⭐⭐⭐⭐⭐</div>
+        </div>
+        <div class="card" style="background: rgba(255, 255, 255, 0.1);">
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+            <div style="width: 50px; height: 50px; background: var(--accent-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👨</div>
+            <div>
+              <h4 style="margin: 0;">Дмитрий В.</h4>
+              <p style="margin: 0; color: var(--text-secondary); font-size: 0.85rem;">Программист</p>
+            </div>
+          </div>
+          <p style="color: var(--text-secondary); font-style: italic;">"Геймификация — это гениально! Я соревнуюсь сам с собой и постоянно хочу побить свой рекорд."</p>
+          <div style="margin-top: 1rem; color: var(--accent-gold);">⭐⭐⭐⭐⭐</div>
+        </div>
+        <div class="card" style="background: rgba(255, 255, 255, 0.1);">
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+            <div style="width: 50px; height: 50px; background: var(--accent-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👩‍🦰</div>
+            <div>
+              <h4 style="margin: 0;">Елена М.</h4>
+              <p style="margin: 0; color: var(--text-secondary); font-size: 0.85rem;">Дизайнер</p>
+            </div>
+          </div>
+          <p style="color: var(--text-secondary); font-style: italic;">"Красивый дизайн и удобный интерфейс. Тёмная тема — просто находка для вечернего использования!"</p>
+          <div style="margin-top: 1rem; color: var(--accent-gold);">⭐⭐⭐⭐⭐</div>
+        </div>
+        <div class="card" style="background: rgba(255, 255, 255, 0.1);">
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+            <div style="width: 50px; height: 50px; background: var(--accent-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👨‍💼</div>
+            <div>
+              <h4 style="margin: 0;">Алексей П.</h4>
+              <p style="margin: 0; color: var(--text-secondary); font-size: 0.85rem;">Предприниматель</p>
+            </div>
+          </div>
+          <p style="color: var(--text-secondary); font-style: italic;">"За 3 месяца с Habit Flow я выработал привычку вставать в 6 утра и заниматься спортом. Моя продуктивность выросла в разы!"</p>
+          <div style="margin-top: 1rem; color: var(--accent-gold);">⭐⭐⭐⭐⭐</div>
+        </div>
+        <div class="card" style="background: rgba(255, 255, 255, 0.1);">
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+            <div style="width: 50px; height: 50px; background: var(--accent-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👩‍🎓</div>
+            <div>
+              <h4 style="margin: 0;">Мария С.</h4>
+              <p style="margin: 0; color: var(--text-secondary); font-size: 0.85rem;">Студентка</p>
+            </div>
+          </div>
+          <p style="color: var(--text-secondary); font-style: italic;">"Как студентка, я постоянно откладывала важные дела на потом. С системой уровней и достижений я наконец-то стала дисциплинированной!"</p>
+          <div style="margin-top: 1rem; color: var(--accent-gold);">⭐⭐⭐⭐⭐</div>
+        </div>
+        <div class="card" style="background: rgba(255, 255, 255, 0.1);">
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+            <div style="width: 50px; height: 50px; background: var(--accent-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👴</div>
+            <div>
+              <h4 style="margin: 0;">Виктор Николаевич</h4>
+              <p style="margin: 0; color: var(--text-secondary); font-size: 0.85rem;">Врач</p>
+            </div>
+          </div>
+          <p style="color: var(--text-secondary); font-style: italic;">"В мои 52 года я думал, что уже поздно менять привычки. Но приложение доказало обратное — теперь я медитирую каждый день!"</p>
+          <div style="margin-top: 1rem; color: var(--accent-gold);">⭐⭐⭐⭐⭐</div>
+        </div>
+        <div class="card" style="background: rgba(255, 255, 255, 0.1);">
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+            <div style="width: 50px; height: 50px; background: var(--accent-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👩‍💻</div>
+            <div>
+              <h4 style="margin: 0;">Ольга Т.</h4>
+              <p style="margin: 0; color: var(--text-secondary); font-size: 0.85rem;">Фрилансер</p>
+            </div>
+          </div>
+          <p style="color: var(--text-secondary); font-style: italic;">"Работая из дома, я потеряла режим. Habit Flow помог мне структурировать день и выделить время на спорт и отдых."</p>
+          <div style="margin-top: 1rem; color: var(--accent-gold);">⭐⭐⭐⭐⭐</div>
+        </div>
+        <div class="card" style="background: rgba(255, 255, 255, 0.1);">
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+            <div style="width: 50px; height: 50px; background: var(--accent-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👨‍🎨</div>
+            <div>
+              <h4 style="margin: 0;">Игорь Д.</h4>
+              <p style="margin: 0; color: var(--text-secondary); font-size: 0.85rem;">Художник</p>
+            </div>
+          </div>
+          <p style="color: var(--text-secondary); font-style: italic;">"Творческому человеку нужна дисциплина. Теперь я рисую каждый день хотя бы 30 минут. Мой стрик уже 45 дней!"</p>
+          <div style="margin-top: 1rem; color: var(--accent-gold);">⭐⭐⭐⭐⭐</div>
+        </div>
+        <div class="card" style="background: rgba(255, 255, 255, 0.1);">
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+            <div style="width: 50px; height: 50px; background: var(--accent-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👱‍♀️</div>
+            <div>
+              <h4 style="margin: 0;">Наталья К.</h4>
+              <p style="margin: 0; color: var(--text-secondary); font-size: 0.85rem;">Менеджер</p>
+            </div>
+          </div>
+          <p style="color: var(--text-secondary); font-style: italic;">"Лучшее приложение для формирования привычек! Пробовала много аналогов, но здесь идеальный баланс простоты и функциональности."</p>
+          <div style="margin-top: 1rem; color: var(--accent-gold);">⭐⭐⭐⭐⭐</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Интерактивный календарь -->
+    <section class="card" style="margin-top: 3rem; padding: 2rem;">
+      <h2 style="text-align: center; margin-bottom: 0.5rem; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+        Ваш прогресс на год
+      </h2>
+      <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">Отслеживайте свои привычки по месяцам</p>
+      
+      <div class="calendar-widget-large">
+        <div class="calendar-header">
+          <div class="calendar-nav">
+            <button onclick="previousMonth()" title="Предыдущий месяц">◀</button>
+          </div>
+          <h3 id="calendarMonth"></h3>
+          <div class="calendar-nav">
+            <button onclick="nextMonth()" title="Следующий месяц">▶</button>
+          </div>
+        </div>
+        
+        <div class="calendar-grid" id="calendarGrid">
+          <!-- Дни будут сгенерированы JavaScript -->
+        </div>
+        
+        <div class="calendar-footer">
+          <p>Выполняйте привычки каждый день для лучшего результата!</p>
+          <div class="calendar-stats">
+            <div class="calendar-stat-item">
+              <span class="stat-dot today"></span>
+              <span>Сегодня</span>
+            </div>
+            <div class="calendar-stat-item">
+              <span class="stat-dot completed"></span>
+              <span>Выполнено</span>
+            </div>
+            <div class="calendar-stat-item">
+              <span class="stat-dot missed"></span>
+              <span>Пропущено</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="card" style="margin-top: 3rem; padding: 2rem;">
+      <h2 style="text-align: center; margin-bottom: 2rem; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+        Частые вопросы
+      </h2>
+      <div style="max-width: 800px; margin: 0 auto;">
+        <details style="padding: 1rem; border-bottom: 1px solid var(--border-color); cursor: pointer;">
+          <summary style="font-weight: 600; margin-bottom: 0.5rem;">Это бесплатно?</summary>
+          <p style="color: var(--text-secondary); margin: 0;">Да, Habit Flow полностью бесплатен и не содержит скрытых платежей! Мы верим, что полезные привычки должны быть доступны каждому.</p>
+        </details>
+        
+        <details style="padding: 1rem; border-bottom: 1px solid var(--border-color); cursor: pointer;">
+          <summary style="font-weight: 600; margin-bottom: 0.5rem;">Можно ли добавить свои привычки?</summary>
+          <p style="color: var(--text-secondary); margin: 0;">Конечно! Вы можете создать неограниченное количество собственных привычек с индивидуальными параметрами: название, иконка, цель, единица измерения и цвет. Мы также предлагаем 6 готовых привычек для быстрого старта.</p>
+        </details>
+        
+        <details style="padding: 1rem; border-bottom: 1px solid var(--border-color); cursor: pointer;">
+          <summary style="font-weight: 600; margin-bottom: 0.5rem;">Сохраняется ли прогресс?</summary>
+          <p style="color: var(--text-secondary); margin: 0;">Да, весь ваш прогресс сохраняется локально в браузере. Вы также можете экспортировать данные в JSON-файл для резервного копирования или переноса на другое устройство. При повторном входе все данные автоматически восстанавливаются.</p>
+        </details>
+        
+        <details style="padding: 1rem; border-bottom: 1px solid var(--border-color); cursor: pointer;">
+          <summary style="font-weight: 600; margin-bottom: 0.5rem;">Как работает система уровней?</summary>
+          <p style="color: var(--text-secondary); margin: 0;">За выполнение привычек вы получаете XP: 10 XP за завершение привычки и 2 XP за каждое действие внутри привычки. Накопив достаточно опыта, вы повышаете уровень. Каждый новый уровень требует больше XP, но даёт больше мотивации!</p>
+        </details>
+        
+        <details style="padding: 1rem; border-bottom: 1px solid var(--border-color); cursor: pointer;">
+          <summary style="font-weight: 600; margin-bottom: 0.5rem;">Что такое стрики и как их поддерживать?</summary>
+          <p style="color: var(--text-secondary); margin: 0;">Стрик — это серия дней, когда вы выполняете привычку. Если вы не выполнили привычку сегодня, стрик сбрасывается. Старайтесь выполнять привычки каждый день до полуночи, чтобы поддерживать серию!</p>
+        </details>
+        
+        <details style="padding: 1rem; border-bottom: 1px solid var(--border-color); cursor: pointer;">
+          <summary style="font-weight: 600; margin-bottom: 0.5rem;">Какие достижения можно получить?</summary>
+          <p style="color: var(--text-secondary); margin: 0;">В игре 10 уникальных достижений: от «Первого шага» (первое выполнение привычки) до «Легенды» (10 уровень). Есть достижения за серию дней, количество привычек, идеальные дни и даже за выполнение привычек в необычное время!</p>
+        </details>
+        
+        <details style="padding: 1rem; border-bottom: 1px solid var(--border-color); cursor: pointer;">
+          <summary style="font-weight: 600; margin-bottom: 0.5rem;">Можно ли изменить цель привычки?</summary>
+          <p style="color: var(--text-secondary); margin: 0;">Да! Вы можете удалить существующую привычку и создать новую с изменёнными параметрами. Мы планируем добавить функцию редактирования в будущих обновлениях.</p>
+        </details>
+        
+        <details style="padding: 1rem; border-bottom: 1px solid var(--border-color); cursor: pointer;">
+          <summary style="font-weight: 600; margin-bottom: 0.5rem;">Работает ли приложение без интернета?</summary>
+          <p style="color: var(--text-secondary); margin: 0;">Да, Habit Flow работает полностью офлайн! Все данные хранятся в вашем браузере, поэтому интернет требуется только для первой загрузки страницы.</p>
+        </details>
+        
+        <details style="padding: 1rem; border-bottom: 1px solid var(--border-color); cursor: pointer;">
+          <summary style="font-weight: 600; margin-bottom: 0.5rem;">Как сбросить весь прогресс?</summary>
+          <p style="color: var(--text-secondary); margin: 0;">Для сброса прогресса вы можете очистить данные браузера для этого сайта или использовать функцию экспорта/импорта для загрузки чистого файла данных. В будущих версиях планируется кнопка сброса в настройках.</p>
+        </details>
+        
+        <details style="padding: 1rem; cursor: pointer;">
+          <summary style="font-weight: 600; margin-bottom: 0.5rem;">Безопасны ли мои данные?</summary>
+          <p style="color: var(--text-secondary); margin: 0;">Абсолютно! Все данные хранятся только в вашем браузере на вашем устройстве. Мы не собираем и не передаём никакую информацию третьим лицам. Вы полностью владеете своими данными.</p>
+        </details>
+      </div>
+    </section>
+
+    <!-- Призыв к действию -->
+    <section style="text-align: center; margin-top: 3rem; padding: 3rem; background: linear-gradient(135deg, rgba(139, 69, 19, 0.7) 0%, rgba(160, 82, 45, 0.6) 100%), url('public/pictures/bg1.png'); background-size: cover; background-position: center; border-radius: 30px; color: white;">
+      <h2 style="font-size: 2rem; margin-bottom: 1rem;">Готовы изменить свою жизнь?</h2>
+      <p style="margin-bottom: 2rem; opacity: 0.95;">Начните отслеживать привычки уже сегодня</p>
+      <a href="habits.html" class="hero-btn">Перейти к привычкам →</a>
+    </section>
+  </main>
+
+  <!-- Футер -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>🚀 Habit Tracker</h4>
+        <p>Ваш персональный трекер полезных привычек с геймификацией</p>
+        <div class="footer-social">
+          <a href="#" title="Telegram">✈️</a>
+          <a href="#" title="VK">📘</a>
+          <a href="#" title="Email">📧</a>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <h4>Навигация</h4>
+        <a href="index.html">🏠 Главная</a>
+        <a href="dashboard.html">📊 Панель</a>
+        <a href="habits.html">📝 Привычки</a>
+        <a href="stats.html">📈 Статистика</a>
+      </div>
+
+      <div class="footer-section">
+        <h4>Разделы</h4>
+        <a href="achievements.html">🏆 Достижения</a>
+        <a href="profile.html">👤 Профиль</a>
+        <a href="#" onclick="exportData()">💾 Экспорт</a>
+        <a href="#" onclick="alert('Функция в разработке')">❓ Помощь</a>
+      </div>
+
+      <div class="footer-section">
+        <h4>Контакты</h4>
+        <p>support@habittracker.ru</p>
+        <p>Владимир, Россия</p>
+        <p>© 2026 Все права защищены</p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026 Habit Tracker. Создано для продуктивной жизни 🚀</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    // Отображение имени пользователя в навигации и проверка авторизации
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentUser = getCurrentUser();
+      if (currentUser) {
+        const nameEl = document.getElementById('navUserName');
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (nameEl && logoutBtn) {
+          nameEl.textContent = currentUser.name;
+          nameEl.style.display = 'block';
+          logoutBtn.style.display = 'block';
+        }
+      } else {
+        // Если не авторизован, ведём на auth.html
+        const heroBtn = document.getElementById('heroBtn');
+        if (heroBtn) {
+          heroBtn.href = 'auth.html';
+        }
+      }
+    });
+
+    // Калькулятор прогресса
+    function updateCalculator() {
+      const habits = parseInt(document.getElementById('habitsSlider').value);
+      const days = parseInt(document.getElementById('daysSlider').value);
+      
+      document.getElementById('habitsValue').textContent = habits;
+      document.getElementById('daysValue').textContent = days;
+      
+      const yearlyTotal = habits * days * 52;
+      document.getElementById('yearlyTotal').textContent = yearlyTotal.toLocaleString('ru-RU');
+      
+      const motivationTexts = [
+        'Отличное начало! Маленькие шаги ведут к большим результатам.',
+        'Это 2-3 новые привычки в месяц!',
+        'Вы превзойдёте 80% людей по уровню дисциплины!',
+        'За год вы станете совершенно другим человеком!',
+        'Это более ' + (yearlyTotal / 12).toFixed(0) + ' действий в месяц!',
+        'Каждое действие приближает вас к цели!',
+        'Невероятно! Вы выполните более ' + (yearlyTotal / 7).toFixed(0) + ' действий в неделю!'
+      ];
+      
+      const index = Math.min(Math.floor(habits * days / 2), motivationTexts.length - 1);
+      document.getElementById('motivationText').textContent = motivationTexts[index] || motivationTexts[motivationTexts.length - 1];
+    }
+
+    // Инициализация калькулятора
+    updateCalculator();
+
+    // ========================================
+    // Календарь
+    // ========================================
+
+    let currentCalendarDate = new Date();
+
+    // Предыдущий месяц
+    function previousMonth() {
+      currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+      renderCalendar();
+    }
+
+    // Следующий месяц
+    function nextMonth() {
+      currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+      renderCalendar();
+    }
+
+    // Рендер календаря
+    function renderCalendar() {
+      const grid = document.getElementById('calendarGrid');
+      const monthLabel = document.getElementById('calendarMonth');
+      
+      if (!grid || !monthLabel) return;
+
+      const year = currentCalendarDate.getFullYear();
+      const month = currentCalendarDate.getMonth();
+
+      // Названия месяцев
+      const monthNames = [
+        'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+        'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+      ];
+
+      // Дни недели
+      const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+
+      // Устанавливаем заголовок
+      monthLabel.textContent = `${monthNames[month]} ${year}`;
+
+      // Очищаем сетку
+      grid.innerHTML = '';
+
+      // Добавляем названия дней недели
+      dayNames.forEach(day => {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'calendar-day-name';
+        dayEl.textContent = day;
+        grid.appendChild(dayEl);
+      });
+
+      // Первый день месяца
+      const firstDay = new Date(year, month, 1);
+      // Последний день месяца
+      const lastDay = new Date(year, month + 1, 0);
+      
+      // День недели первого дня (0 = Вс, 1 = Пн, ...)
+      let startingDay = firstDay.getDay();
+      // Корректируем чтобы Пн был первым
+      startingDay = startingDay === 0 ? 6 : startingDay - 1;
+
+      // Сегодняшняя дата
+      const today = new Date();
+      const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+
+      // Получаем данные о выполненных привычках из localStorage
+      const currentUser = getCurrentUser();
+      let completedDates = [];
+      if (currentUser) {
+        const userDataKey = `habitflow_user_${currentUser.id}`;
+        const savedData = localStorage.getItem(userDataKey);
+        if (savedData) {
+          const savedState = JSON.parse(savedData);
+          if (savedState.habits) {
+            // Собираем все даты выполнений из всех привычек
+            savedState.habits.forEach(habit => {
+              if (habit.completedDates) {
+                completedDates = completedDates.concat(habit.completedDates);
+              }
+            });
+          }
+        }
+      }
+
+      // Пустые ячейки до первого дня
+      for (let i = 0; i < startingDay; i++) {
+        const emptyEl = document.createElement('div');
+        emptyEl.className = 'calendar-day empty';
+        grid.appendChild(emptyEl);
+      }
+
+      // Дни месяца
+      for (let day = 1; day <= lastDay.getDate(); day++) {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'calendar-day';
+        dayEl.textContent = day;
+
+        // Формируем строку даты для сравнения
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+        // Проверяем, является ли день сегодняшним
+        if (isCurrentMonth && day === today.getDate()) {
+          dayEl.classList.add('today');
+        }
+
+        // Проверяем, была ли выполнена привычка в этот день
+        if (completedDates.includes(dateStr)) {
+          dayEl.classList.add('completed');
+        } else if (!isCurrentMonth || day < today.getDate()) {
+          // Прошедшие дни без выполнения
+          dayEl.classList.add('missed');
+        }
+
+        grid.appendChild(dayEl);
+      }
+    }
+
+    // Инициализация календаря при загрузке
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCalendar();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Профиль - Habit Tracker</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    // Применяем тему сразу до загрузки страницы
+    (function() {
+      const savedTheme = localStorage.getItem('habitflow_theme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      }
+    })();
+  </script>
+</head>
+<body>
+  <!-- Навигация -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <span>🚀</span> Habit Tracker
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">🏠 Главная</a></li>
+        <li><a href="dashboard.html">📊 Панель</a></li>
+        <li><a href="habits.html">📝 Привычки</a></li>
+        <li><a href="stats.html">📈 Статистика</a></li>
+        <li><a href="achievements.html">🏆 Достижения</a></li>
+        <li><a href="profile.html" class="active">👤 Профиль</a></li>
+      </ul>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span id="navUserName" style="color: var(--text-secondary); font-size: 0.9rem; display: none;"></span>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
+        <button id="logoutBtn" onclick="logout()" style="background: var(--danger); color: white; border: none; padding: 0.5rem 1rem; border-radius: 25px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease; display: none;" title="Выйти">🚪</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Основной контент -->
+  <main class="container">
+    <div class="page-header">
+      <h1>👤 Мой профиль</h1>
+      <p>Управляйте своим аккаунтом и настройками</p>
+    </div>
+
+    <!-- Информация об аккаунте -->
+    <div class="card fade-in" style="margin-bottom: 2rem; background: rgba(102, 126, 234, 0.15); border-color: rgba(102, 126, 234, 0.3);">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h3 style="margin-bottom: 0.25rem;">🔐 Аккаунт</h3>
+          <p id="accountEmail" style="color: var(--text-secondary); font-size: 0.9rem;">email@example.com</p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-secondary" onclick="showChangePasswordModal()">🔑 Сменить пароль</button>
+          <button class="btn btn-danger" onclick="logout()">🚪 Выйти</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Заголовок профиля -->
+    <div class="profile-header fade-in">
+      <div style="position: relative; display: inline-block;">
+        <div class="profile-avatar" id="profileAvatar">
+          <span style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">👤</span>
+        </div>
+        <label for="avatarUpload" style="position: absolute; bottom: 5px; right: 5px; background: var(--accent-gradient); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 3px solid var(--bg-card); box-shadow: 0 2px 10px rgba(0,0,0,0.3);" title="Изменить фото">
+          📷
+          <input type="file" id="avatarUpload" accept="image/*" onchange="uploadAvatar(event)" style="display: none;">
+        </label>
+      </div>
+      <div class="profile-info">
+        <h2 id="profileName">Пользователь</h2>
+        <p id="profileLevel">Уровень 1</p>
+        <div class="profile-stats">
+          <div class="profile-stat">
+            <div class="profile-stat-value" id="profileTotal">0</div>
+            <div class="profile-stat-label">Выполнений</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-value" id="profileStreak">0</div>
+            <div class="profile-stat-label">Стрик</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-value" id="profileAchievements">0</div>
+            <div class="profile-stat-label">Достижения</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Уровень и XP -->
+    <div class="level-container fade-in">
+      <div class="level-header">
+        <span class="level-badge" id="levelBadge">Ур. 1</span>
+        <span class="xp-text" id="xpText">0 / 100 XP</span>
+      </div>
+      <div class="progress-container">
+        <div class="progress-bar" id="xpBar" style="width: 0%"></div>
+      </div>
+      <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+        Выполняйте привычки ежедневно, чтобы получать XP и повышать уровень!
+      </p>
+    </div>
+
+    <!-- Настройки профиля -->
+    <div class="card-grid">
+      <div class="card fade-in">
+        <h3 style="margin-bottom: 1.5rem;">⚙️ Настройки профиля</h3>
+        
+        <div class="form-group">
+          <label>Ваше имя</label>
+          <input type="text" id="userNameInput" placeholder="Введите имя" value="Пользователь">
+        </div>
+        
+        <button class="btn btn-primary" onclick="saveProfileSettings()">💾 Сохранить</button>
+      </div>
+      
+      <div class="card fade-in delay-1">
+        <h3 style="margin-bottom: 1.5rem;">🎨 Оформление</h3>
+        
+        <div class="form-group">
+          <label>Тема оформления</label>
+          <div style="display: flex; gap: 1rem;">
+            <button class="btn btn-secondary" onclick="setTheme('light')" id="lightThemeBtn">
+              ☀️ Светлая
+            </button>
+            <button class="btn btn-secondary" onclick="setTheme('dark')" id="darkThemeBtn">
+              🌙 Тёмная
+            </button>
+          </div>
+        </div>
+        
+        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+          Выберите удобную тему для использования приложения
+        </p>
+      </div>
+    </div>
+
+    <!-- Управление данными -->
+    <div class="card" style="margin-top: 2rem;">
+      <h3 style="margin-bottom: 1.5rem;">💾 Управление данными</h3>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+        <div style="padding: 1.5rem; background: var(--bg-secondary); border-radius: 15px;">
+          <h4 style="margin-bottom: 0.5rem;">📤 Экспорт данных</h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+            Сохраните все свои данные в файл для резервного копирования
+          </p>
+          <button class="btn btn-primary" onclick="exportData()">💾 Экспортировать</button>
+        </div>
+        
+        <div style="padding: 1.5rem; background: var(--bg-secondary); border-radius: 15px;">
+          <h4 style="margin-bottom: 0.5rem;">📥 Импорт данных</h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+            Загрузите данные из ранее сохранённого файла
+          </p>
+          <label class="btn btn-secondary" style="cursor: pointer; display: inline-flex;">
+            📥 Импортировать
+            <input type="file" accept=".json" onchange="importData(event)" style="display: none;">
+          </label>
+        </div>
+        
+        <div style="padding: 1.5rem; background: var(--bg-secondary); border-radius: 15px;">
+          <h4 style="margin-bottom: 0.5rem;">🗑️ Сброс прогресса</h4>
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+            Полностью удалите все данные и начните заново
+          </p>
+          <button class="btn btn-danger" onclick="resetProgress()">⚠️ Сбросить всё</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Статистика -->
+    <div class="card" style="margin-top: 2rem;">
+      <h3 style="margin-bottom: 1.5rem;">📊 Подробная статистика</h3>
+      
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+        <div style="text-align: center; padding: 1rem; background: var(--bg-secondary); border-radius: 12px;">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">📝</div>
+          <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-primary);" id="statHabits">0</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">Привычек</div>
+        </div>
+        
+        <div style="text-align: center; padding: 1rem; background: var(--bg-secondary); border-radius: 12px;">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">✅</div>
+          <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-primary);" id="statCompleted">0</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">Выполнений</div>
+        </div>
+        
+        <div style="text-align: center; padding: 1rem; background: var(--bg-secondary); border-radius: 12px;">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🔥</div>
+          <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-primary);" id="statStreak">0</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">Лучший стрик</div>
+        </div>
+        
+        <div style="text-align: center; padding: 1rem; background: var(--bg-secondary); border-radius: 12px;">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">⭐</div>
+          <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-primary);" id="statXP">0</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">Всего XP</div>
+        </div>
+        
+        <div style="text-align: center; padding: 1rem; background: var(--bg-secondary); border-radius: 12px;">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🌅</div>
+          <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-primary);" id="statEarly">0</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">Ранних подъёмов</div>
+        </div>
+        
+        <div style="text-align: center; padding: 1rem; background: var(--bg-secondary); border-radius: 12px;">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🦉</div>
+          <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-primary);" id="statLate">0</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">Ночных выполнений</div>
+        </div>
+        
+        <div style="text-align: center; padding: 1rem; background: var(--bg-secondary); border-radius: 12px;">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏆</div>
+          <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-primary);" id="statAchievements">0</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">Достижений</div>
+        </div>
+        
+        <div style="text-align: center; padding: 1rem; background: var(--bg-secondary); border-radius: 12px;">
+          <div style="font-size: 2rem; margin-bottom: 0.5rem;">⭐</div>
+          <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent-primary);" id="statPerfect">0</div>
+          <div style="font-size: 0.85rem; color: var(--text-secondary);">Идеальных дней</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- О приложении -->
+    <div class="card" style="margin-top: 2rem; text-align: center;">
+      <h3 style="margin-bottom: 1rem;">🚀 Habit Tracker</h3>
+      <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+        Версия 1.0.0 | Создано для продуктивной жизни
+      </p>
+      <p style="color: var(--text-secondary); font-size: 0.9rem;">
+        Трекер полезных привычек с геймификацией, достижениями и подробной статистикой.
+      </p>
+      <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <span style="padding: 0.5rem 1rem; background: var(--bg-secondary); border-radius: 20px; font-size: 0.85rem; color: var(--text-secondary);">
+          🎮 Геймификация
+        </span>
+        <span style="padding: 0.5rem 1rem; background: var(--bg-secondary); border-radius: 20px; font-size: 0.85rem; color: var(--text-secondary);">
+          🏆 Достижения
+        </span>
+        <span style="padding: 0.5rem 1rem; background: var(--bg-secondary); border-radius: 20px; font-size: 0.85rem; color: var(--text-secondary);">
+          📊 Статистика
+        </span>
+        <span style="padding: 0.5rem 1rem; background: var(--bg-secondary); border-radius: 20px; font-size: 0.85rem; color: var(--text-secondary);">
+          🌙 Тёмная тема
+        </span>
+      </div>
+    </div>
+  </main>
+
+  <!-- Футер -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>🚀 Habit Tracker</h4>
+        <p>Ваш персональный трекер полезных привычек с геймификацией</p>
+        <div class="footer-social">
+          <a href="#" title="Telegram">✈️</a>
+          <a href="#" title="VK">📘</a>
+          <a href="#" title="Email">📧</a>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <h4>Навигация</h4>
+        <a href="index.html">🏠 Главная</a>
+        <a href="dashboard.html">📊 Панель</a>
+        <a href="habits.html">📝 Привычки</a>
+        <a href="stats.html">📈 Статистика</a>
+      </div>
+
+      <div class="footer-section">
+        <h4>Разделы</h4>
+        <a href="achievements.html">🏆 Достижения</a>
+        <a href="profile.html">👤 Профиль</a>
+        <a href="#" onclick="exportData()">💾 Экспорт</a>
+        <a href="#" onclick="alert('Функция в разработке')">❓ Помощь</a>
+      </div>
+
+      <div class="footer-section">
+        <h4>Контакты</h4>
+        <p>support@habittracker.ru</p>
+        <p>Владимир, Россия</p>
+        <p>© 2026 Все права защищены</p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026 Habit Tracker. Создано для продуктивной жизни 🚀</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    const API_BASE = 'http://localhost:3000/api';
+
+    // Загрузка аватара - глобальная функция
+    window.uploadAvatar = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      console.log('Файл выбран:', file.name, file.size);
+
+      if (file.size > 5 * 1024 * 1024) {
+        showNotification('❌', 'Ошибка', 'Файл слишком большой (макс. 5MB)');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        console.log('Файл загружен');
+        const avatarData = e.target.result;
+        appState.user.avatar = avatarData;
+        saveToStorage();
+        updateAvatarUI();
+        showNotification('✅', 'Готово', 'Фото профиля обновлено!');
+      };
+      reader.onerror = function() {
+        console.error('Ошибка загрузки');
+        showNotification('❌', 'Ошибка', 'Не удалось загрузить файл');
+      };
+      reader.readAsDataURL(file);
+    };
+
+    // Обновление отображения аватара - глобальная функция
+    window.updateAvatarUI = function() {
+      const avatarEl = document.getElementById('profileAvatar');
+      if (!avatarEl) {
+        console.warn('profileAvatar не найден');
+        return;
+      }
+
+      if (appState.user.avatar) {
+        avatarEl.innerHTML = `<img src="${appState.user.avatar}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+      } else {
+        // Показываем первую букву имени
+        const initial = (appState.user.name || 'П').charAt(0).toUpperCase();
+        avatarEl.innerHTML = `<span style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; font-size: 3rem; color: white;">${initial}</span>`;
+      }
+    };
+
+    // Сохранение настроек профиля
+    window.saveProfileSettings = async function() {
+      const name = document.getElementById('userNameInput').value.trim();
+      if (!name || name.length < 2) {
+        showNotification('❌', 'Ошибка', 'Имя должно быть не менее 2 символов');
+        return;
+      }
+
+      const token = getToken();
+      if (!token) {
+        showNotification('❌', 'Ошибка', 'Не авторизован');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/update-profile`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ name })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          showNotification('❌', 'Ошибка', result.error);
+          return;
+        }
+
+        // Обновляем токен с новым именем
+        const auth = getAuth();
+        auth.token = result.token;
+        auth.user.name = result.name;
+        localStorage.setItem('habitflow_auth', JSON.stringify(auth));
+
+        appState.user.name = name;
+        saveToStorage();
+        updateProfile();
+        showNotification('✅', 'Сохранено', 'Имя успешно обновлено!');
+      } catch (err) {
+        showNotification('❌', 'Ошибка', 'Не удалось подключиться к серверу');
+        console.error(err);
+      }
+    }
+
+    // Установка темы
+    window.setTheme = function(theme) {
+      appState.theme = theme;
+      saveToStorage();
+      applyTheme();
+      showNotification('✅', 'Тема изменена', `Теперь используется ${theme === 'dark' ? 'тёмная' : 'светлая'} тема`);
+    }
+
+    // Сброс прогресса
+    window.resetProgress = function() {
+      if (confirm('⚠️ Вы уверены, что хотите сбросить весь прогресс? Это действие нельзя отменить!')) {
+        if (confirm('Это удалит все привычки, достижения и статистику. Продолжить?')) {
+          // Удаляем данные на сервере и перезагружаем
+          saveToStorage().then(() => {
+            location.reload();
+          });
+        }
+      }
+    }
+
+    // Экспорт данных
+    window.exportData = function() {
+      const dataStr = JSON.stringify(appState, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `habitflow_backup_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showNotification('💾', 'Экспорт', 'Данные сохранены!');
+    }
+
+    // Импорт данных
+    window.importData = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          appState = JSON.parse(e.target.result);
+          saveToStorage();
+          updateAllUI();
+          showNotification('📥', 'Импорт', 'Данные загружены!');
+        } catch (err) {
+          showNotification('❌', 'Ошибка', 'Неверный формат файла');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Обновление статистики
+    function updateStats() {
+      document.getElementById('statHabits').textContent = appState.habits.length;
+      document.getElementById('statCompleted').textContent = appState.user.totalCompleted;
+      document.getElementById('statStreak').textContent = appState.user.maxStreak;
+      document.getElementById('statXP').textContent = appState.user.xp;
+      document.getElementById('statEarly').textContent = appState.user.earlyMorning;
+      document.getElementById('statLate').textContent = appState.user.lateNight;
+      document.getElementById('statAchievements').textContent = appState.unlockedAchievements.length;
+      document.getElementById('statPerfect').textContent = appState.user.perfectDays;
+    }
+
+    // Обновление кнопок темы
+    function updateThemeButtons() {
+      const lightBtn = document.getElementById('lightThemeBtn');
+      const darkBtn = document.getElementById('darkThemeBtn');
+
+      if (appState.theme === 'dark') {
+        lightBtn.classList.remove('btn-primary');
+        lightBtn.classList.add('btn-secondary');
+        darkBtn.classList.remove('btn-secondary');
+        darkBtn.classList.add('btn-primary');
+      } else {
+        darkBtn.classList.remove('btn-primary');
+        darkBtn.classList.add('btn-secondary');
+        lightBtn.classList.remove('btn-secondary');
+        lightBtn.classList.add('btn-primary');
+      }
+    }
+
+    // Переопределение updateProfile
+    const originalUpdateProfile = updateProfile;
+    updateProfile = function() {
+      if (originalUpdateProfile) originalUpdateProfile();
+      updateAvatarUI();
+      updateStats();
+      updateThemeButtons();
+    };
+
+    // Инициализация
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Ждём загрузки данных
+      while (!appState.user || !appState.user.name) {
+        await new Promise(r => setTimeout(r, 50));
+      }
+
+      setTimeout(() => {
+        // Установка имени в поле ввода
+        document.getElementById('userNameInput').value = appState.user.name;
+
+        // Отображение email аккаунта
+        const currentUser = getCurrentUser();
+        if (currentUser) {
+          document.getElementById('accountEmail').textContent = currentUser.email;
+        }
+
+        updateProfile();
+      }, 100);
+    });
+
+    // Смена пароля
+    window.showChangePasswordModal = async function() {
+      const token = getToken();
+      if (!token) {
+        showNotification('❌', 'Ошибка', 'Не авторизован');
+        return;
+      }
+
+      const oldPassword = prompt('Введите текущий пароль:');
+      if (!oldPassword) return;
+
+      const newPassword = prompt('Введите новый пароль:');
+      if (!newPassword || newPassword.length < 6) {
+        showNotification('❌', 'Ошибка', 'Пароль должен быть не менее 6 символов');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/change-password`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ oldPassword, newPassword })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          showNotification('❌', 'Ошибка', result.error);
+          return;
+        }
+
+        showNotification('✅', 'Успешно', 'Пароль изменён!');
+      } catch (err) {
+        showNotification('❌', 'Ошибка', 'Не удалось подключиться к серверу');
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>

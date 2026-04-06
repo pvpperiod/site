@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Панель управления - Habit Tracker</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    // Применяем тему сразу до загрузки страницы
+    (function() {
+      const savedTheme = localStorage.getItem('habitflow_theme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      }
+    })();
+  </script>
+</head>
+<body>
+  <!-- Навигация -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <span>🚀</span> Habit Tracker
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">🏠 Главная</a></li>
+        <li><a href="dashboard.html" class="active">📊 Панель</a></li>
+        <li><a href="habits.html">📝 Привычки</a></li>
+        <li><a href="stats.html">📈 Статистика</a></li>
+        <li><a href="achievements.html">🏆 Достижения</a></li>
+        <li><a href="profile.html">👤 Профиль</a></li>
+      </ul>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span id="navUserName" style="color: var(--text-secondary); font-size: 0.9rem; display: none;"></span>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
+        <button id="logoutBtn" onclick="logout()" style="background: var(--danger); color: white; border: none; padding: 0.5rem 1rem; border-radius: 25px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease; display: none;" title="Выйти">🚪</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Основной контент -->
+  <main class="container">
+    <div class="page-header">
+      <h1>📊 Панель управления</h1>
+      <p>Ваш прогресс и статистика на сегодня</p>
+    </div>
+
+    <!-- Уровень и XP -->
+    <div class="level-container">
+      <div class="level-header">
+        <span class="level-badge" id="levelBadge">Ур. 1</span>
+        <span class="xp-text" id="xpText">0 / 100 XP</span>
+      </div>
+      <div class="progress-container">
+        <div class="progress-bar" id="xpBar" style="width: 0%"></div>
+      </div>
+    </div>
+
+    <!-- Обзор статистики -->
+    <div class="stats-overview">
+      <div class="stat-card fade-in">
+        <div class="stat-icon">📝</div>
+        <div class="stat-value" id="totalHabits">0</div>
+        <div class="stat-label">Всего привычек</div>
+      </div>
+      
+      <div class="stat-card fade-in delay-1">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value" id="completedToday">0</div>
+        <div class="stat-label">Выполнено сегодня</div>
+      </div>
+      
+      <div class="stat-card fade-in delay-2">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-value" id="currentStreak">0</div>
+        <div class="stat-label">Лучший стрик</div>
+      </div>
+      
+      <div class="stat-card fade-in delay-3">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-value" id="totalXP">0</div>
+        <div class="stat-label">Всего XP</div>
+      </div>
+    </div>
+
+    <!-- Быстрые действия -->
+    <div class="card" style="margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.3rem;">⚡ Быстрые действия</h2>
+        <button class="btn btn-primary" onclick="openModal('addHabitModal')">
+          ➕ Добавить привычку
+        </button>
+      </div>
+      
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <a href="habits.html" class="btn btn-secondary">📝 Все привычки</a>
+        <a href="stats.html" class="btn btn-secondary">📈 Статистика</a>
+        <a href="achievements.html" class="btn btn-secondary">🏆 Достижения</a>
+        <button class="btn btn-secondary" onclick="exportData()">💾 Экспорт</button>
+        <label class="btn btn-secondary" style="cursor: pointer;">
+          📥 Импорт
+          <input type="file" accept=".json" onchange="importData(event)" style="display: none;">
+        </label>
+      </div>
+    </div>
+
+    <!-- Сегодняшние привычки -->
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 style="font-size: 1.3rem;">📋 Сегодняшние привычки</h2>
+        <span id="completionRate" style="color: var(--text-secondary);">0%</span>
+      </div>
+      
+      <div id="habitsList">
+        <!-- Привычки будут загружены здесь -->
+      </div>
+      
+      <div style="text-align: center; margin-top: 1.5rem;">
+        <a href="habits.html" class="btn btn-primary">Показать все →</a>
+      </div>
+    </div>
+
+    <!-- Календарь -->
+    <div class="calendar-container" style="margin-top: 2rem;">
+      <div class="calendar-header">
+        <h3>📅 Март 2026</h3>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-secondary" onclick="alert('Функция в разработке')">◀</button>
+          <button class="btn btn-secondary" onclick="alert('Функция в разработке')">▶</button>
+        </div>
+      </div>
+      <div class="calendar-grid" id="calendarGrid">
+        <!-- Календарь будет сгенерирован JS -->
+      </div>
+      <div style="display: flex; gap: 1.5rem; margin-top: 1rem; justify-content: center; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <div style="width: 15px; height: 15px; background: var(--success); border-radius: 5px;"></div>
+          <span style="font-size: 0.85rem; color: var(--text-secondary);">Выполнено</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <div style="width: 15px; height: 15px; background: var(--accent-primary); border-radius: 5px;"></div>
+          <span style="font-size: 0.85rem; color: var(--text-secondary);">Сегодня</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+          <div style="width: 15px; height: 15px; background: var(--danger); opacity: 0.3; border-radius: 5px;"></div>
+          <span style="font-size: 0.85rem; color: var(--text-secondary);">Пропущено</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Футер -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>🚀 Habit Tracker</h4>
+        <p>Ваш персональный трекер полезных привычек с геймификацией</p>
+        <div class="footer-social">
+          <a href="#" title="Telegram">✈️</a>
+          <a href="#" title="VK">📘</a>
+          <a href="#" title="Email">📧</a>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <h4>Навигация</h4>
+        <a href="index.html">🏠 Главная</a>
+        <a href="dashboard.html">📊 Панель</a>
+        <a href="habits.html">📝 Привычки</a>
+        <a href="stats.html">📈 Статистика</a>
+      </div>
+
+      <div class="footer-section">
+        <h4>Разделы</h4>
+        <a href="achievements.html">🏆 Достижения</a>
+        <a href="profile.html">👤 Профиль</a>
+        <a href="#" onclick="exportData()">💾 Экспорт</a>
+        <a href="#" onclick="alert('Функция в разработке')">❓ Помощь</a>
+      </div>
+
+      <div class="footer-section">
+        <h4>Контакты</h4>
+        <p>support@habittracker.ru</p>
+        <p>Владимир, Россия</p>
+        <p>© 2026 Все права защищены</p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026 Habit Tracker. Создано для продуктивной жизни 🚀</p>
+    </div>
+  </footer>
+
+  <!-- Модальное окно добавления привычки -->
+  <div class="modal-overlay" id="addHabitModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>➕ Новая привычка</h2>
+        <button class="modal-close" onclick="closeModal('addHabitModal')">×</button>
+      </div>
+      
+      <form onsubmit="submitHabitForm(event)">
+        <div class="form-group">
+          <label>Название привычки</label>
+          <input type="text" name="habitName" placeholder="Например: Пить воду" required>
+        </div>
+        
+        <div class="form-group">
+          <label>Эмодзи</label>
+          <select name="habitEmoji" style="font-size: 1.2rem;">
+            <option value="💧">💧 Вода</option>
+            <option value="📚">📚 Книги</option>
+            <option value="🏃‍♂️">🏃‍♂️ Спорт</option>
+            <option value="🧘‍♀️">🧘‍♀️ Медитация</option>
+            <option value="💤">💤 Сон</option>
+            <option value="🥗">🥗 Питание</option>
+            <option value="🎯">🎯 Цель</option>
+            <option value="⭐">⭐ Звезда</option>
+            <option value="🔥">🔥 Огонь</option>
+            <option value="💪">💪 Сила</option>
+            <option value="🧠">🧠 Ум</option>
+            <option value="❤️">❤️ Здоровье</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Цель (сколько раз в день)</label>
+          <input type="number" name="habitTarget" value="1" min="1" max="100">
+        </div>
+        
+        <div class="form-group">
+          <label>Единица измерения</label>
+          <input type="text" name="habitUnit" value="раз" placeholder="раз, минут, стаканов...">
+        </div>
+        
+        <div class="form-group">
+          <label>Цвет</label>
+          <input type="color" name="habitColor" value="#667eea" style="height: 50px; cursor: pointer;">
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('addHabitModal')">Отмена</button>
+          <button type="submit" class="btn btn-primary">Создать</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    // Проверка авторизации
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentUser = getCurrentUser();
+      if (!currentUser) {
+        window.location.href = 'auth.html';
+        return;
+      }
+      
+      const nameEl = document.getElementById('navUserName');
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (nameEl && logoutBtn) {
+        nameEl.textContent = currentUser.name;
+        nameEl.style.display = 'block';
+        logoutBtn.style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Статистика - Habit Tracker</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    // Применяем тему сразу до загрузки страницы
+    (function() {
+      const savedTheme = localStorage.getItem('habitflow_theme');
+      if (savedTheme) {
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      }
+    })();
+  </script>
+</head>
+<body>
+  <!-- Навигация -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="logo">
+        <span>🚀</span> Habit Tracker
+      </a>
+      <ul class="nav-links">
+        <li><a href="index.html">🏠 Главная</a></li>
+        <li><a href="dashboard.html">📊 Панель</a></li>
+        <li><a href="habits.html">📝 Привычки</a></li>
+        <li><a href="stats.html" class="active">📈 Статистика</a></li>
+        <li><a href="achievements.html">🏆 Достижения</a></li>
+        <li><a href="profile.html">👤 Профиль</a></li>
+      </ul>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span id="navUserName" style="color: var(--text-secondary); font-size: 0.9rem; display: none;"></span>
+        <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">🌙</button>
+        <button id="logoutBtn" onclick="logout()" style="background: var(--danger); color: white; border: none; padding: 0.5rem 1rem; border-radius: 25px; cursor: pointer; font-size: 0.9rem; transition: all 0.3s ease; display: none;" title="Выйти">🚪</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Основной контент -->
+  <main class="container">
+    <div class="page-header">
+      <h1>📈 Статистика</h1>
+      <p>Анализируйте свой прогресс и достижения</p>
+    </div>
+
+    <!-- Общая статистика -->
+    <div class="stats-overview">
+      <div class="stat-card fade-in">
+        <div class="stat-icon">📝</div>
+        <div class="stat-value" id="totalHabits">0</div>
+        <div class="stat-label">Всего привычек</div>
+      </div>
+      
+      <div class="stat-card fade-in delay-1">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value" id="totalCompleted">0</div>
+        <div class="stat-label">Всего выполнений</div>
+      </div>
+      
+      <div class="stat-card fade-in delay-2">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-value" id="maxStreak">0</div>
+        <div class="stat-label">Лучший стрик</div>
+      </div>
+      
+      <div class="stat-card fade-in delay-3">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-value" id="perfectDays">0</div>
+        <div class="stat-label">Идеальных дней</div>
+      </div>
+    </div>
+
+    <!-- График за неделю -->
+    <div class="chart-container fade-in">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 style="font-size: 1.2rem;">📊 Активность за неделю</h3>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-secondary" onclick="updateChart('week')">Неделя</button>
+          <button class="btn btn-secondary" onclick="updateChart('month')">Месяц</button>
+        </div>
+      </div>
+      
+      <div class="chart-bars" id="chartBars">
+        <!-- Столбцы графика будут здесь -->
+      </div>
+    </div>
+
+    <!-- Статистика по привычкам -->
+    <div class="card-grid">
+      <div class="card fade-in">
+        <h3 style="margin-bottom: 1rem;">🏆 Топ привычек по стрику</h3>
+        <div id="topHabitsStreak">
+          <!-- Топ привычек -->
+        </div>
+      </div>
+      
+      <div class="card fade-in delay-1">
+        <h3 style="margin-bottom: 1rem;">📈 Прогресс сегодня</h3>
+        <div id="todayProgress">
+          <!-- Прогресс сегодня -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Детальная статистика -->
+    <div class="card" style="margin-top: 2rem;">
+      <h3 style="margin-bottom: 1.5rem;">📋 Детальная статистика</h3>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+        <div style="padding: 1rem; background: var(--bg-secondary); border-radius: 15px;">
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Текущий уровень</div>
+          <div style="font-size: 2rem; font-weight: 700; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" id="detailLevel">1</div>
+        </div>
+
+        <div style="padding: 1rem; background: var(--bg-secondary); border-radius: 15px;">
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Всего XP</div>
+          <div style="font-size: 2rem; font-weight: 700; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" id="detailXP">0</div>
+        </div>
+
+        <div style="padding: 1rem; background: var(--bg-secondary); border-radius: 15px;">
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Ранняя пташка</div>
+          <div style="font-size: 2rem; font-weight: 700; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" id="detailEarly">0</div>
+        </div>
+
+        <div style="padding: 1rem; background: var(--bg-secondary); border-radius: 15px;">
+          <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Ночная сова</div>
+          <div style="font-size: 2rem; font-weight: 700; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;" id="detailLate">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Экспорт данных -->
+    <div class="card" style="margin-top: 2rem; text-align: center;">
+      <h3 style="margin-bottom: 1rem;">💾 Управление данными</h3>
+      <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+        Сохраните свои данные или загрузите из резервной копии
+      </p>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <button class="btn btn-primary" onclick="exportData()">💾 Экспорт данных</button>
+        <label class="btn btn-secondary" style="cursor: pointer;">
+          📥 Импорт данных
+          <input type="file" accept=".json" onchange="importData(event)" style="display: none;">
+        </label>
+      </div>
+    </div>
+  </main>
+
+  <!-- Футер -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4>🚀 Habit Tracker</h4>
+        <p>Ваш персональный трекер полезных привычек с геймификацией</p>
+        <div class="footer-social">
+          <a href="#" title="Telegram">✈️</a>
+          <a href="#" title="VK">📘</a>
+          <a href="#" title="Email">📧</a>
+        </div>
+      </div>
+
+      <div class="footer-section">
+        <h4>Навигация</h4>
+        <a href="index.html">🏠 Главная</a>
+        <a href="dashboard.html">📊 Панель</a>
+        <a href="habits.html">📝 Привычки</a>
+        <a href="stats.html">📈 Статистика</a>
+      </div>
+
+      <div class="footer-section">
+        <h4>Разделы</h4>
+        <a href="achievements.html">🏆 Достижения</a>
+        <a href="profile.html">👤 Профиль</a>
+        <a href="#" onclick="exportData()">💾 Экспорт</a>
+        <a href="#" onclick="alert('Функция в разработке')">❓ Помощь</a>
+      </div>
+
+      <div class="footer-section">
+        <h4>Контакты</h4>
+        <p>support@habittracker.ru</p>
+        <p>Владимир, Россия</p>
+        <p>© 2026 Все права защищены</p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>© 2026 Habit Tracker. Создано для продуктивной жизни 🚀</p>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    // Обновление статистики для страницы stats
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        // Обновление общей статистики
+        document.getElementById('totalCompleted').textContent = appState.user.totalCompleted;
+        document.getElementById('maxStreak').textContent = appState.user.maxStreak;
+        document.getElementById('perfectDays').textContent = appState.user.perfectDays;
+        
+        // Детальная статистика
+        document.getElementById('detailLevel').textContent = appState.user.level;
+        document.getElementById('detailXP').textContent = appState.user.xp;
+        document.getElementById('detailEarly').textContent = appState.user.earlyMorning;
+        document.getElementById('detailLate').textContent = appState.user.lateNight;
+        
+        // Топ привычек по стрику
+        renderTopHabits();
+        
+        // Прогресс сегодня
+        renderTodayProgress();
+      }, 100);
+    });
+    
+    function renderTopHabits() {
+      const container = document.getElementById('topHabitsStreak');
+      const sorted = [...appState.habits].sort((a, b) => b.streak - a.streak).slice(0, 5);
+      
+      if (sorted.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Пока нет данных</p>';
+        return;
+      }
+      
+      container.innerHTML = sorted.map((habit, index) => `
+        <div style="display: flex; align-items: center; gap: 1rem; padding: 0.75rem; border-bottom: 1px solid var(--border-color);">
+          <span style="font-size: 1.5rem; font-weight: 700; color: var(--text-muted); width: 30px;">#${index + 1}</span>
+          <span style="font-size: 1.5rem;">${habit.emoji}</span>
+          <span style="flex: 1;">${habit.name}</span>
+          <span style="font-weight: 600; color: var(--warning);">🔥 ${habit.streak}</span>
+        </div>
+      `).join('');
+    }
+    
+    function renderTodayProgress() {
+      const container = document.getElementById('todayProgress');
+      const total = appState.habits.length;
+      const completed = appState.habits.filter(h => h.completedToday >= h.target).length;
+      const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+      
+      container.innerHTML = `
+        <div style="text-align: center; padding: 1rem;">
+          <div style="font-size: 3rem; font-weight: 700; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">${percentage}%</div>
+          <p style="color: var(--text-secondary); margin-bottom: 1rem;">выполнено сегодня</p>
+          <div class="progress-container" style="height: 20px;">
+            <div class="progress-bar" style="width: ${percentage}%"></div>
+          </div>
+          <p style="margin-top: 1rem; color: var(--text-secondary);">
+            ${completed} из ${total} привычек
+          </p>
+        </div>
+      `;
+    }
+    
+    function updateChart(period) {
+      // Генерация новых данных для демонстрации
+      const days = period === 'week' 
+        ? ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+        : ['1 нед', '2 нед', '3 нед', '4 нед'];
+      
+      appState.weeklyData = days.map(day => ({
+        day,
+        value: Math.floor(Math.random() * 80) + 20
+      }));
+      
+      const chartBars = document.getElementById('chartBars');
+      chartBars.innerHTML = appState.weeklyData.map(data => `
+        <div class="chart-bar" style="height: ${data.value}%">
+          <span class="value">${data.value}%</span>
+          <span>${data.day}</span>
+        </div>
+      `).join('');
+    }
+
+    // Проверка авторизации
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentUser = getCurrentUser();
+      if (!currentUser) {
+        window.location.href = 'auth.html';
+        return;
+      }
+    });
+  </script>
+</body>
+</html>
